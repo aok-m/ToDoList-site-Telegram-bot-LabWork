@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+  <style>
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-container {
+      text-align: center;
+      background: white;
+      padding: 30px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    input {
+      display: block;
+      width: 200px;
+      margin: 10px auto;
+      padding: 8px;
+      font-family: inherit;
+    }
+    button {
+      padding: 8px 16px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    a {
+      color: #333;
+      text-decoration: underline;
+    }
+    #message {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Register</h2>
+    <input id="regUser" placeholder="Username">
+    <input id="regPass" type="password" placeholder="Password">
+    <button onclick="register()">Register</button>
+    <p>Already registered? <a href="/login.html">Log in</a></p>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    async function register() {
+      const username = document.getElementById('regUser').value;
+      const password = document.getElementById('regPass').value;
+      const messageEl = document.getElementById('message');
+
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, password })
+      });
+
+      if (res.ok) {
+        messageEl.style.color = 'green';
+        messageEl.textContent = 'Registered! You can now log in.';
+      } else {
+        messageEl.style.color = 'red';
+        messageEl.textContent = 'User already exists';
+      }
+    }
+  </script>
+</body>
+</html>

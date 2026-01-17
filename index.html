@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: 'Courier New', Courier, monospace;
+    }
+    #todoList {
+      border-collapse: collapse;
+      width: 70%;
+      margin: 0 auto;
+    }
+    #todoList th, #todoList td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    #todoList th {
+      background-color: #f0f0f0;
+    }
+    #todoList th:first-child, #todoList th:last-child {
+      width: 5%;
+    }
+    #todoList th:nth-child(2) {
+      width: 75%;
+    }
+    .add-form {
+      margin-top: 20px;
+      width: 70%;
+      margin: 20px auto;
+    }
+    .add-form input[type="text"] {
+      padding: 8px;
+      width: 70%;
+    }
+    .add-form button {
+      padding: 8px;
+      width: 20%;
+    }
+    .logout {
+      text-align: center;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div style="text-align: right; margin: 10px 20px;">
+  👤 <span id="currentUser"></span>
+  <button onclick="logout()">🚪 Выйти</button>
+</div>
+
+<h2 style="text-align: center;">To-Do List</h2>
+
+<table id="todoList">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Text</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="listBody">
+    <!-- Динамически создаваемые элементы -->
+  </tbody>
+</table>
+
+<div class="add-form">
+  <input type="text" id="newItem" placeholder="Enter new item">
+  <button onclick="addItem()">✨ Add</button>
+</div>
+
+<script>
+if (localStorage.getItem('auth') !== 'true') {
+  window.location.href = '/login.html';
+}
+
+document.getElementById('currentUser').textContent = localStorage.getItem('username');
+
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login.html';
+}
+
+async function fetchItems() {
+  const username = localStorage.getItem('username');
+  const response = await fetch('/items?username=' + encodeURIComponent(username));
+  const items = await response.json();
+  updateTable(items);
+}
+
+async function addItem() {
+  const newItemInput = document.getElementById('newItem');
+  const newItemText = newItemInput.value.trim();
+
+  if (newItemText) {
+    await fetch('/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        text: newItemText,
+        username: localStorage.getItem('username')
+      })
+    });
+    newItemInput.value = '';
+    fetchItems();
+  }
+}
+
+async function deleteItem(id) {
+  await fetch('/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, username: localStorage.getItem('username') })
+  });
+  fetchItems();
+}
+
+async function toggleDone(id, done) {
+  await fetch('/mark', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, done, username: localStorage.getItem('username') })
+  });
+  fetchItems();
+}
+
+function makeEditable(td, itemId) {
+  const oldText = td.textContent;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = oldText;
+  input.style.width = '90%';
+
+  td.textContent = '';
+  td.appendChild(input);
+  input.focus();
+
+  input.addEventListener('blur', async () => {
+    const newText = input.value.trim();
+    if (newText && newText !== oldText) {
+      await fetch('/edit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: itemId, text: newText, username: localStorage.getItem('username') })
+      });
+      fetchItems();
+    } else {
+      td.textContent = oldText;
+    }
+  });
+
+  input.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') input.blur();
+    else if (e.key === 'Escape') td.textContent = oldText;
+  });
+}
+
+function updateTable(items) {
+  const listBody = document.getElementById('listBody');
+  listBody.innerHTML = '';
+
+  items.forEach((item, index) => {
+    const row = document.createElement('tr');
+    if (item.done) {
+      row.style.backgroundColor = '#d4edda';
+      row.style.textDecoration = 'line-through';
+    }
+
+    const idCell = document.createElement('td');
+    idCell.textContent = index + 1;
+
+    const textCell = document.createElement('td');
+    textCell.textContent = item.text;
+    textCell.addEventListener('click', () => makeEditable(textCell, item.id));
+
+    const actionsCell = document.createElement('td');
+    actionsCell.innerHTML = `
+      <button onclick="toggleDone(${item.id}, true)">✅</button>
+      <button onclick="toggleDone(${item.id}, false)">❌</button>
+      <button onclick="deleteItem(${item.id})">🗑️</button>
+    `;
+
+    row.appendChild(idCell);
+    row.appendChild(textCell);
+    row.appendChild(actionsCell);
+
+    listBody.appendChild(row);
+  });
+}
+
+window.onload = fetchItems;
+</script>
+
+</body>
+</html>
