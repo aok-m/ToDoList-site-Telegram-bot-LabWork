@@ -35,22 +35,22 @@
 - Docker & Docker Compose
 - MySQL 8.0
 
-## 📦 Project Structure
-todolist/
-├── index.html # Main page with tasks
-├── login.html # Login page
-├── register.html # Registration page
-├── index.js # Node.js server
-├── bot.js # Telegram bot
-├── init.sql # Database schema
-├── Dockerfile # Docker configuration
-├── docker-compose.yml # Multi-container setup
-├── package.json # Node.js dependencies
-├── package-lock.json # Dependency lock file
-├── .env.example # Environment template
-├── README.md # Documentation
-├── LICENSE # MIT License
-└── .gitignore # Git ignore rules
+## 📦 Project Structure  
+todolist/  
+├── index.html # Main page with tasks  
+├── login.html # Login page  
+├── register.html # Registration page  
+├── index.js # Node.js server  
+├── bot.js # Telegram bot  
+├── init.sql # Database schema  
+├── Dockerfile # Docker configuration  
+├── docker-compose.yml # Multi-container setup  
+├── package.json # Node.js dependencies  
+├── package-lock.json # Dependency lock file  
+├── .env.example # Environment template  
+├── README.md # Documentation  
+├── LICENSE # MIT License  
+└── .gitignore # Git ignore rules  
 
 ## 🚀 Quick Start
 
@@ -107,7 +107,6 @@ Basic commands:
 
 ## 📸 Screenshots
 
-*(Add screenshots from your report here)*
 ![Main Page](screenshots/main.png)
 ![Login Page](screenshots/login.png)
 ![Autorization Page](screenshots/autorization.png)
